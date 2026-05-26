@@ -8,7 +8,7 @@ config STRIZH_DONGLE_ROTATE_DISPLAY_180
 
 config STRIZH_DONGLE_USE_AMBIENT_LIGHT_SENSOR
     bool "Use ambient light sensor for auto brightness"
-    default y
+    default n
 
 config STRIZH_DONGLE_FIXED_BRIGHTNESS
     int "Fixed display brightness"

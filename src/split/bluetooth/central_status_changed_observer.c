@@ -122,11 +122,11 @@ static void split_central_process_connection(struct bt_conn *conn) {
 
     bt_conn_get_info(conn, &info);
 
-    LOG_DBG("New connection params: Interval: %d, Latency: %d, PHY: %d", info.le.interval,
-            info.le.latency, info.le.phy->rx_phy);
+    LOG_DBG("New connection params: Interval: %d, Latency: %d", info.le.interval,
+            info.le.latency);
 
     raise_zmk_split_central_status_changed((struct zmk_split_central_status_changed){
-        .slot = peripheral_slot_index_for_conn(conn),
+        .slot = psptr_peripheral_slot_index_for_conn(conn),
         .connected = true,
     });
 }
@@ -170,7 +170,7 @@ static void split_central_disconnected(struct bt_conn *conn, uint8_t reason) {
     LOG_DBG("Disconnected: %s (reason %d)", addr_str, reason);
 
     raise_zmk_split_central_status_changed((struct zmk_split_central_status_changed){
-        .slot = peripheral_slot_index_for_conn(conn),
+        .slot = psptr_peripheral_slot_index_for_conn(conn),
         .connected = false,
     });
 

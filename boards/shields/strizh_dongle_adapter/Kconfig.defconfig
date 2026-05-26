@@ -1,5 +1,11 @@
 if SHIELD_STRIZH_DONGLE_ADAPTER
 
+config ZMK_SPLIT_BLE
+    default y
+
+config ZMK_SPLIT_ROLE_CENTRAL
+    default y
+
 config ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING
     default y
 
