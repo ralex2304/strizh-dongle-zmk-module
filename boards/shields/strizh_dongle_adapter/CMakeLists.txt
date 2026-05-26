@@ -1,4 +1,4 @@
-if(CONFIG_SHIELD_PROSPECTOR_ADAPTER)
+if(CONFIG_SHIELD_STRIZH_DONGLE_ADAPTER)
   zephyr_library()
   file(GLOB font_sources src/fonts/*.c)
   zephyr_library_sources(${ZEPHYR_BASE}/misc/empty_file.c)

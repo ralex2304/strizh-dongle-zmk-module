@@ -7,56 +7,52 @@
   };
 };
 
-&spi2 {
-   status = "disabled";
-};
-
 &pinctrl {
-   spi3_default: spi3_default {
-		group1 {
-			psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,
-				<NRF_PSEL(SPIM_MOSI, 1, 15)>,
-				<NRF_PSEL(SPIM_MISO, 1, 10)>;
-		};
-	};
+    spi1_default: spi1_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 17)>,
+                <NRF_PSEL(SPIM_MOSI, 0, 22)>,
+                <NRF_PSEL(SPIM_MISO, 0, 20)>;
+        };
+    };
 
-	spi3_sleep: spi3_sleep {
-		group1 {
-			psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,
-				<NRF_PSEL(SPIM_MOSI, 1, 15)>,
-				<NRF_PSEL(SPIM_MISO, 1, 10)>;
-			low-power-enable;
-		};
-	};
+    spi1_sleep: spi1_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 17)>,
+                <NRF_PSEL(SPIM_MOSI, 0, 22)>,
+                <NRF_PSEL(SPIM_MISO, 0, 20)>;
+            low-power-enable;
+        };
+    };
 
    pwm1_default: pwm1_default {
       group1 {
-         psels = <NRF_PSEL(PWM_OUT0, 1, 11)>;
+         psels = <NRF_PSEL(PWM_OUT0, 1, 04)>;
          nordic,invert;
       };
    };
 
    pwm1_sleep: pwm1_sleep {
       group1 {
-         psels = <NRF_PSEL(PWM_OUT0, 1, 11)>;
+         psels = <NRF_PSEL(PWM_OUT0, 1, 04)>;
          low-power-enable;
       };
    };
 };
 
-disp_spi: &spi3 {
+disp_spi: &spi1 {
    status = "okay";
-   pinctrl-0 = <&spi3_default>;
-	pinctrl-1 = <&spi3_sleep>;
-	pinctrl-names = "default", "sleep";
-   cs-gpios = <&xiao_d 9 GPIO_ACTIVE_LOW>;
+   pinctrl-0 = <&spi1_default>;
+   pinctrl-1 = <&spi1_sleep>;
+   pinctrl-names = "default", "sleep";
+   cs-gpios = <&pro_micro 5 GPIO_ACTIVE_LOW>;
 
    st7789: st7789v@0 {
        compatible = "sitronix,st7789v";
        spi-max-frequency = <31000000>;
        reg = <0>;
-       cmd-data-gpios = <&xiao_d 7 GPIO_ACTIVE_LOW>;
-       reset-gpios = <&xiao_d 3 GPIO_ACTIVE_LOW>;
+       cmd-data-gpios = <&pro_micro 6 GPIO_ACTIVE_LOW>;
+       reset-gpios = <&pro_micro 7 GPIO_ACTIVE_LOW>;
        width = <240>;
        height = <280>;
        x-offset = <0>;
@@ -76,17 +72,6 @@ disp_spi: &spi3 {
        nvgam-param = [ D0 04 0C 11 13 2C 3F 44 51 2F 1F 1F 20 23  ];
        ram-param = [ 00 F0  ];
        rgb-param = [ CD 08 14  ];
-   };
-};
-
-&i2c0 {
-   status = "okay";
-
-   apds9960: apds9960@39 {
-       compatible = "avago,apds9960";
-       status = "okay";
-       reg = <0x39>;
-       int-gpios = <&xiao_d 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
    };
 };
 

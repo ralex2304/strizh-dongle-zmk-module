@@ -1,4 +1,4 @@
-if SHIELD_PROSPECTOR_ADAPTER
+if SHIELD_STRIZH_DONGLE_ADAPTER
 
 config ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING
     default y
@@ -60,8 +60,8 @@ config PWM
 config LED
     default y
 
-config PROSPECTOR_USE_AMBIENT_LIGHT_SENSOR
-    select SENSOR
-    select APDS9960
+# config STRIZH_DONGLE_USE_AMBIENT_LIGHT_SENSOR
+#     select SENSOR
+#     select APDS9960
 
 endif
