@@ -16,7 +16,7 @@ static const struct device *pwm_leds_dev = DEVICE_DT_GET_ONE(pwm_leds);
 static uint8_t current_brightness = 100;
 
 #define SENSOR_MIN      0       // Minimum sensor reading
-#define SENSOR_MAX      100   // Maximum sensor reading
+#define SENSOR_MAX      3300000 // Maximum sensor reading
 #define PWM_MIN         1       // Minimum PWM duty cycle (%) - keep display visible
 #define PWM_MAX         100     // Maximum PWM duty cycle (%)
 
@@ -31,21 +31,23 @@ static uint8_t current_brightness = 100;
 #define BURST_SAMPLE_TIMEOUT             10
 #define BURST_SAMPLE_CONSECUTIVE         3
 
-uint8_t map_light_to_pwm(int32_t sensor_reading) {
+uint8_t map_light_to_pwm(int32_t sensor_volts, int32_t sensor_uvolts) {
+    sensor_uvolts += sensor_volts * 1000000;
+
     // Handle invalid/error readings
-    if (sensor_reading < SENSOR_MIN) {
+    if (sensor_uvolts < SENSOR_MIN) {
         return PWM_MIN;  // Default to minimum brightness on error
     }
 
     // Clamp to maximum
-    if (sensor_reading > SENSOR_MAX) {
-        sensor_reading = SENSOR_MAX;
+    if (sensor_uvolts > SENSOR_MAX) {
+        sensor_uvolts = SENSOR_MAX;
     }
 
     // Linear mapping
     uint8_t pwm_value = (uint8_t)(
         PWM_MIN + ((PWM_MAX - PWM_MIN) *
-        (sensor_reading - SENSOR_MIN)) / (SENSOR_MAX - SENSOR_MIN)
+        (sensor_uvolts - SENSOR_MIN)) / (SENSOR_MAX - SENSOR_MIN)
     );
 
     return pwm_value;
@@ -82,15 +84,13 @@ extern void als_thread(void *d0, void *d1, void *d2) {
     ARG_UNUSED(d2);
 
     const struct device *dev;
-    struct sensor_value intensity;
+    struct sensor_value sensor_data;
     uint8_t mapped_brightness;
 
-    dev = DEVICE_DT_GET_ONE(avago_apds9960);
+    dev = DEVICE_DT_GET_ONE(voltage_divider);
     if (!device_is_ready(dev)) {
         printk("sensor: device not ready.\n");
     }
-
-    // led_set_brightness(pwm_leds_dev, DISP_BL, 100);
 
     while (1) {
 
@@ -101,13 +101,13 @@ extern void als_thread(void *d0, void *d1, void *d2) {
             LOG_ERR("sensor_sample fetch failed\n");
         }
 
-        if (sensor_channel_get(dev, SENSOR_CHAN_LIGHT, &intensity)) {
+        if (sensor_channel_get(dev, SENSOR_CHAN_VOLTAGE, &sensor_data)) {
             LOG_ERR("Cannot read ALS data.\n");
         }
 
-        // LOG_INF("ambient light intensity %d", intensity.val1);
+        //LOG_INF("reading %u.%06u volts \n", sensor_data.val1, sensor_data.val2);
 
-        mapped_brightness = map_light_to_pwm(intensity.val1);
+        mapped_brightness = map_light_to_pwm(sensor_data.val1, sensor_data.val2);
         // LOG_INF("NORMAL: mapped PWM duty cycle %d\n", mapped_brightness);
 
         if (abs(mapped_brightness - current_brightness) > FADE_THRESHOLD) {
@@ -119,11 +119,11 @@ extern void als_thread(void *d0, void *d1, void *d2) {
                 if (sensor_sample_fetch(dev)) {
                     LOG_ERR("sensor_sample fetch failed\n");
                 }
-                if (sensor_channel_get(dev, SENSOR_CHAN_LIGHT, &intensity)) {
+                if (sensor_channel_get(dev, SENSOR_CHAN_VOLTAGE, &sensor_data)) {
                     LOG_ERR("Cannot read ALS data.\n");
                 }
 
-                mapped_brightness = map_light_to_pwm(intensity.val1);
+                mapped_brightness = map_light_to_pwm(sensor_data.val1, sensor_data.val2);
                 // LOG_INF("BURST: mapped PWM duty cycle %d\n", mapped_brightness);
 
                 if (abs(mapped_brightness - current_brightness) > FADE_THRESHOLD) {
@@ -138,7 +138,6 @@ extern void als_thread(void *d0, void *d1, void *d2) {
                 }
             }
         }
-        // led_set_brightness(pwm_leds_dev, DISP_BL, map_light_to_pwm(intensity.val1));
     }
 }
 

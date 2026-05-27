@@ -66,8 +66,8 @@ config PWM
 config LED
     default y
 
-# config STRIZH_DONGLE_USE_AMBIENT_LIGHT_SENSOR
-#     select SENSOR
-#     select APDS9960
+config STRIZH_DONGLE_USE_AMBIENT_LIGHT_SENSOR
+     select SENSOR
+     select VOLTAGE_DIVIDER
 
 endif
